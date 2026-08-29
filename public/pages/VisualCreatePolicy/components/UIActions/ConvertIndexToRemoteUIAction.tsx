@@ -40,8 +40,9 @@ export default class ConvertIndexToRemoteUIAction implements UIAction<ConvertInd
     );
   };
 
-  isValidRenamePattern = (renamePattern: string = DEFAULT_RENAME_PATTERN) => {
-    return renamePattern.trim().length > 0 && renamePattern.includes("$1");
+  isValidRenamePattern = (renamePattern?: string) => {
+    const pattern = (renamePattern ?? DEFAULT_RENAME_PATTERN).trim();
+    return pattern.length > 0 && pattern.includes("$1");
   };
 
   isValidNumberOfReplicas = (numberOfReplicas?: number) => {
@@ -236,15 +237,19 @@ export default class ConvertIndexToRemoteUIAction implements UIAction<ConvertInd
   };
 
   toAction = () => {
-    const action: ConvertIndexToRemoteAction = {
-      ...this.action,
-      convert_index_to_remote: {
-        ...this.action.convert_index_to_remote,
-      },
+    const convertIndexToRemote: ConvertIndexToRemoteAction["convert_index_to_remote"] = {
+      ...this.action.convert_index_to_remote,
     };
-    if (typeof action.convert_index_to_remote.number_of_replicas === "undefined") {
-      delete action.convert_index_to_remote.number_of_replicas;
+    if (typeof convertIndexToRemote.number_of_replicas === "undefined") {
+      delete convertIndexToRemote.number_of_replicas;
     }
-    return action;
+    const renamePattern = convertIndexToRemote.rename_pattern?.trim();
+    if (!renamePattern) {
+      convertIndexToRemote.rename_pattern = DEFAULT_RENAME_PATTERN;
+    }
+    return {
+      ...this.action,
+      convert_index_to_remote: convertIndexToRemote,
+    };
   };
 }

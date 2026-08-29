@@ -176,6 +176,19 @@ describe("ConvertIndexToRemoteUIAction component", () => {
     const invalidUIAction3 = actionRepoSingleton.getUIActionFromData(invalidAction3.action);
     expect(invalidUIAction3.isValid()).toBe(false);
 
+    // Invalid action - empty rename pattern
+    const invalidActionEmptyRename = {
+      ...TEST_PROPS,
+      action: {
+        convert_index_to_remote: {
+          ...DEFAULT_CONVERT_INDEX_TO_REMOTE.convert_index_to_remote,
+          rename_pattern: "",
+        },
+      },
+    };
+    const invalidUIActionEmptyRename = actionRepoSingleton.getUIActionFromData(invalidActionEmptyRename.action);
+    expect(invalidUIActionEmptyRename.isValid()).toBe(false);
+
     // Invalid action - negative number_of_replicas
     const invalidAction4 = {
       ...TEST_PROPS,
@@ -244,5 +257,23 @@ describe("ConvertIndexToRemoteUIAction component", () => {
 
     const action = uiAction.toAction() as ConvertIndexToRemoteAction;
     expect(action.convert_index_to_remote.number_of_replicas).toBe(2);
+  });
+
+  it("defaults empty or undefined rename_pattern when converting to action", () => {
+    const emptyPatternAction = actionRepoSingleton.getUIActionFromData({
+      convert_index_to_remote: {
+        ...DEFAULT_CONVERT_INDEX_TO_REMOTE.convert_index_to_remote,
+        rename_pattern: "",
+      },
+    });
+    expect((emptyPatternAction.toAction() as ConvertIndexToRemoteAction).convert_index_to_remote.rename_pattern).toBe("$1_remote");
+
+    const withoutRenamePattern = { ...DEFAULT_CONVERT_INDEX_TO_REMOTE.convert_index_to_remote };
+    delete withoutRenamePattern.rename_pattern;
+    const undefinedPatternAction = actionRepoSingleton.getUIActionFromData({
+      convert_index_to_remote: withoutRenamePattern,
+    });
+    expect(undefinedPatternAction.isValid()).toBe(true);
+    expect((undefinedPatternAction.toAction() as ConvertIndexToRemoteAction).convert_index_to_remote.rename_pattern).toBe("$1_remote");
   });
 });

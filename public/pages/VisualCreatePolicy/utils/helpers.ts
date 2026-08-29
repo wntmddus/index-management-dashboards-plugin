@@ -126,7 +126,7 @@ export const getActionOptions = (actionRepoSingleton: ActionRepository) => {
   });
 };
 
-class ActionRepository {
+export class ActionRepository {
   repository: { [actionType: string]: [new (action: Action) => UIAction<any>, Action] } = {
     alias: [AliasUIAction, DEFAULT_ALIAS],
     allocation: [AllocationUIAction, DEFAULT_ALLOCATION],
